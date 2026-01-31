@@ -1,22 +1,23 @@
 [https://school.programmers.co.kr/learn/courses/30/lessons/131537](https://school.programmers.co.kr/learn/courses/30/lessons/131537)
 ```sql
-
 (
-    SELECT DATE_FORMAT(SALES_DATE, '%Y-%m-%d') AS SALES_DATE , PRODUCT_ID, USER_ID, SALES_AMOUNT
+SELECT DATE_FORMAT(SALES_DATE, "%Y-%m-%d") AS SALES_DATE , PRODUCT_ID, USER_ID, SALES_AMOUNT
 
 FROM ONLINE_SALE
     
-WHERE SALES_DATE LIKE '2022-03%'
+WHERE SALES_DATE LIKE "%-03-%"
+    
 )
 
-UNION ALL
+UNION
 
 (
-SELECT DATE_FORMAT(SALES_DATE, '%Y-%m-%d') AS SALES_DATE, PRODUCT_ID, NULL AS USER_ID, SALES_AMOUNT
+SELECT DATE_FORMAT(SALES_DATE, "%Y-%m-%d")AS SALES_DATE, PRODUCT_ID, NULL AS USER_ID, SALES_AMOUNT
 
 FROM OFFLINE_SALE
 
-WHERE SALES_DATE LIKE '2022-03%'
+WHERE SALES_DATE LIKE "%-03-%"
+
 )
 
 ORDER BY SALES_DATE, PRODUCT_ID, USER_ID
@@ -94,8 +95,7 @@ ORDER BY SALES_DATE, PRODUCT_ID, USER_ID
         -- 두 번째 쿼리 (동생)
         -- ❌ 별칭 무시됨
         SELECT id AS '관리자ID' FROM admins;
-        ```
-        
+        ```      
 3. `UNION` 과 `UNION ALL`
     - `UNION` (중복 제거 O)
         - 두 테이블을 합친 뒤, 중복된 행이 있으면 하나만 남기고 지웁니다.
@@ -103,14 +103,17 @@ ORDER BY SALES_DATE, PRODUCT_ID, USER_ID
     - `UNION ALL` (중복 제거 X)
         - 그냥 묻지도 따지지도 않고 무조건 다 붙입니다.
         - 중복 검사가 없어서 속도가 훨씬 빠릅니다.
-4. 값이 없는 컬럼에 NULL 넣는 방법
+4. `UNION`을 써야한다는 판단 근거
+   - `JOIN`은 서로 다른 정보를 옆으로 연결한다. 하지만 이 문제는 동일한 정보를 서로 다른 테이블에서 원하고 있다. 아래로 정보를 쌓아 한번에 보여줘야 한다.
+   - `USER_ID` 값은 `NULL` 로 표시하라는 말은, 컬럼 개수를 맞추라는 의미이므로, `UNION`을 사용해야한다는 힌트이다.
+6. 값이 없는 컬럼에 NULL 넣는 방법
     
     ```sql
      NULL AS USER_ID
      -- USER_ID 값에 NULL이 들어감
     ```
     
-5. ⭐️ 인덱스 친화적 쿼리
+7. ⭐️ 인덱스 친화적 쿼리
     
     > 정렬되어 있다면 색인 접근이 효율적이다.
     > 
