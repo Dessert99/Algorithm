@@ -1,13 +1,25 @@
 [https://school.programmers.co.kr/learn/courses/30/lessons/276034?language=mysql](https://school.programmers.co.kr/learn/courses/30/lessons/276034?language=mysql)
 ```sql
 SELECT ID, EMAIL, FIRST_NAME, LAST_NAME
+
 FROM DEVELOPERS
+
+-- 두 값의 비트 연산 결과가 0 이상이라면 스킬을 보유하고 있다.
 WHERE SKILL_CODE & (
-    SELECT SUM(CODE)
+    SELECT SUM(CODE)  -- 모든 컬럼의 CODE 값을 집계
+    
     FROM SKILLCODES
-    WHERE NAME IN ('Python', 'C#') -- IN 연산자 사용
+    
+    WHERE NAME IN ("Python", "C#") -- NAME 파이썬과 C# 컬럼
 ) > 0
-ORDER BY ID;
+
+ORDER BY ID
+
+
+/*
+💡 두 테이블은 연관되어 있지 않다.
+    -> 서브 쿼리를 사용해야 한다.
+*/
 ```
 ### 🔗 풀이
 1. 조회 (SELCET)
