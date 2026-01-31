@@ -4,7 +4,7 @@ SELECT MEMBER_ID, MEMBER_NAME, GENDER, DATE_FORMAT(DATE_OF_BIRTH, '%Y-%m-%d') AS
 
 FROM MEMBER_PROFILE
 
-WHERE  MONTH(DATE_OF_BIRTH) = 3 AND GENDER = 'W' AND TLNO IS NOT NULL
+WHERE  DATE_OF_BIRTH LIKE "%-03-%" AND GENDER = 'W' AND TLNO IS NOT NULL
 
 ORDER BY MEMBER_ID
 ```
@@ -20,7 +20,10 @@ ORDER BY MEMBER_ID
           ❌ MONTH(DATE_OF_BIRTH) = '03' 
           ✅ MONTH(DATE_OF_BIRTH) = 3
         ```
-
+        - 더 효율적으로 조회하려면 다음 방법이 있다.
+        ```sql
+          ✅ DATE_OF_BIRTH LIKE "%-03-%"
+        ```
         
     - 여성 회원
     - 전화번호가 NULL인 경우는 출력대상에서 제외
