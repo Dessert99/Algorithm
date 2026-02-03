@@ -1,33 +1,31 @@
 [https://school.programmers.co.kr/learn/courses/30/lessons/273711](https://school.programmers.co.kr/learn/courses/30/lessons/273711)
 ```sql
--- 코드를 작성해주세요
 SELECT I.ITEM_ID, I.ITEM_NAME, I.RARITY
 
 FROM ITEM_INFO AS I
     JOIN ITEM_TREE AS T
         ON I.ITEM_ID = T.ITEM_ID
 
--- PARENT_ITEM_ID를 알고 싶음
+-- 아이템의 희귀도가 'RARE'인 아이템들의 모든 다음 업그레이드 아이템
 WHERE T.PARENT_ITEM_ID IN (
     SELECT ITEM_ID
     FROM ITEM_INFO
     WHERE RARITY = 'RARE'
 )
 
-ORDER BY I.ITEM_ID DESC
+ORDER BY ITEM_ID DESC
 ```
 ### 🔗 풀이
-1. 조회 (SELECT)
-    - 아이템 ID(ITEM_ID)
-    - 아이템 명(ITEM_NAME)
-    - 아이템의 희귀도(RARITY)
-2. 테이블 (JOIN)
-    - ITEM_ID로 연결
-3. 조건 (WHERE)
-    - 서브쿼리 (IN)
-        - 아이템의 희귀도가 'RARE'인 아이템들의 모든 다음 업그레이드 아이템
-4. 정렬 (ORDER BY)
-    - 아이템 ID를 기준으로 내림차순 정렬
+1. 🤔 JOIN을 해야 하는가?
+    - ❌ 이 문제에서 조회해야하는 컬럼은 전부 ITEM_INFO에 있다. 굳이 JOIN할 필요는 없다.
+        - 이 판단이 틀린 이유는 "조회는 하지 않지만 WHERE절에서 사용하기 때문"이다. JOIN은 필요하다.
+
+2. 🤔 어떤 서브 쿼리 내용이 필요할까?
+    - "아이템의 희귀도가 'RARE'인 아이템들"을 뽑아야 한다.
+
+3. 🤔 서브 쿼리에 "ITEM_ID"를 조회해야 하는 이유?
+    - ITEM_TREE 테이블은 ID만 알고 있기 때문이다.
+
 
 ### 🔗 배운점
 1. 서브쿼리 
