@@ -23,8 +23,8 @@ LIMIT 3
 1. 같은 아이스크림에 대하여 서로 다른 두 공장에서 아이스크림 가게로 출하를 진행하는 경우가 있습니다. 이 경우 같은 맛의 아이스크림이라도 다른 출하 번호를 갖는다.
     - `SHIPMENT_ID`와 `FLAVOR`이 1대1 매칭이 아니라는 의미이다.
 
-2. `FLAVOR`는 `FIRST_HALF` 테이블의 `FLAVOR`의 외래 키, `FIRST_HALF`테이블의 `SHIPMENT_ID`는 `JULY`테이블의 `SHIPMENT_ID`의 외래 키라는 말의 의미
-    - `JULY` 테이블에 있는 `SHIPMENT_ID`, `FLAVOR`는 전부 `FIRST_HALF`에 있다는 말이다.
+2. `FLAVOR`는 `FIRST_HALF` 테이블의 `FLAVOR`의 외래 키'라는 말의 의미
+    - `JULY` 테이블에 있는 `FLAVOR`는 전부 `FIRST_HALF`에 있다는 말이다.
 
 3. `FIRST_HALF` 테이블의 기본 키는 `FLAVOR`라는 의미
     - 7월에는 같은 맛에 출하번호가 여러 개일 수도 있지만 상반기 테이블에서 `FLAVOR`는 출하번호와 1대1 매칭된다는 의미이다.
