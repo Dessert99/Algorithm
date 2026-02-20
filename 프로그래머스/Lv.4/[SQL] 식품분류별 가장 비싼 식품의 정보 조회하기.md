@@ -1,25 +1,40 @@
 [https://school.programmers.co.kr/learn/courses/30/lessons/131116](https://school.programmers.co.kr/learn/courses/30/lessons/131116)
 ```sql
-SELECT CATEGORY, PRICE AS MAX_PRICE, PRODUCT_NAME
+SELECT
+    CATEGORY,
+    PRICE AS MAX_PRICE,
+    PRODUCT_NAME
+-- RNK컬럼이 추가된 새로운 테이블을 만든다.
+FROM
+    (
+        SELECT
+            CATEGORY,
+            PRICE,
+            PRODUCT_NAME,
+            -- 여기 윈도우 함수로 랭킹 만들기
+            RANK() OVER (PARTITION BY CATEGORY ORDER BY PRICE DESC ) AS RNK -- 꼭 정렬을 해줘야 한다. 가격을 기준으로 내림차 정렬한다.
+        FROM
+            FOOD_PRODUCT
+        WHERE
+            CATEGORY IN ('과자', '국', '김치', '식용유')
+    ) AS TMP -- 서브 쿼리로 만든 테이블에는 별칭을 꼭 달아줘야 한다.
+WHERE
+    RNK = 1
 
-FROM (SELECT CATEGORY, 
-PRICE, 
-PRODUCT_NAME,
--- 카테고리별로(PARTITION BY) 파티션을 나누고, 가격 내림차순(ORDER BY PRICE DESC)으로 순위를 매긴다.
-RANK() OVER (PARTITION BY CATEGORY ORDER BY PRICE DESC) AS PR_RANK
-FROM FOOD_PRODUCT
-WHERE CATEGORY IN ('과자', '국', '김치', '식용유')
-) AS FILTER
-
-WHERE PR_RANK = 1
-
-ORDER BY PRICE DESC
+ORDER BY 
+    PRICE DESC -- 여기서도 정렬을 해야 한다. 최종 결과를 어떻게 보여줄지 정한다.
 ```
 ### 🔗 풀이
 1. 🤔 식품분류별로 가격이 제일 비싼 식품 
     - CATEGORY별로 GROUP 했을 때, 가장 상위 물품.
     - GROUP BY하면 행이 사라진다!
     - 그래서 WHERE절에서 서브 쿼리를 만들어 카테고리 별 상위 물품을 뽑아야 한다.
+2. ⭐️ 쿼리문을 자연어로 풀자면
+    1. RNK 컬럼이 추가된 새로운 테이블을 만든다. RNK컬럼은 윈도우 함수를 통해 랭킹을 세운다.
+    2. RNK 값이 1인 행만 필터링한다.
+    3. 조회한다.
+3. 🤔 서브 쿼리에서 조회해야 하는 컬럼들
+    - 외부 쿼리에서 조회해야 하는 컬럼들이 있어야 한다.
 ### 🔗 배운점
 1. 윈도우 함수: `RANK`
    ```sql
