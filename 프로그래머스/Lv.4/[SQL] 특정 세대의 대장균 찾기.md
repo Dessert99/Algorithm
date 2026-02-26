@@ -1,7 +1,9 @@
 [https://school.programmers.co.kr/learn/courses/30/lessons/301650?language=mysql](https://school.programmers.co.kr/learn/courses/30/lessons/301650?language=mysql)
 ```sql
-WITH RECURSIVE TEMP AS (
--- 1) 1세대 대장균 찾기
+WITH
+    RECURSIVE TEMP
+AS (
+-- 1. 초기값 설정. 재귀의 시작점. 부모가 없는 애들을 찾아서 DEPTH = 1 로 만든다.
     SELECT
         ID,
         1 AS DEPTH
@@ -12,7 +14,7 @@ WITH RECURSIVE TEMP AS (
         
     UNION ALL
     
--- 2) 다음 세대 찾기
+-- 2. 반복 연산. 자식 노드를 계속 찾아간다.
     SELECT
         CHILD.ID,
         DEPTH + 1
@@ -22,14 +24,18 @@ WITH RECURSIVE TEMP AS (
         TEMP AS PARENT 
       ON
         PARENT.ID = CHILD.PARENT_ID
+
+-- 3. 종료 조건. 반복 연산의 종료 시점이다.
     WHERE
         DEPTH < 3 -- 3세대 까지
      )
 
 SELECT
     T.ID AS ID
+    
 FROM
     TEMP AS T
+    
 WHERE
     T.DEPTH = 3 -- 3세대만 사용
 
@@ -46,9 +52,49 @@ ORDER BY
     1. 부모, 자식 테이블을 셀프 조인한다. 이때, 부모 테이블 기준으로 조인한다.
     2. 여기에 다시 한 번 더 조인한다.
 ### 🔗 배운점
-1. 첫 번째 풀이는 `JOIN`, 두 번째 풀이는 `WITH RECURSIVE`
-    - 세대가 3될 때까지 재귀한다.
-    - 새로운 테이블에는 `DEPTH`라는 컬럼을 만들었다.
+1. 계층형 재귀 구조 스니펫
+   ```sql
+    WITH
+       RECURSIVE HierarchyCTE AS
+    (
+        -- 1. 초기값 설정: 최상위 노드(뿌리) 찾기 (예: 매니저가 없는 사장님)
+        SELECT 
+            ID, 
+            PARENT_ID, 
+            NAME, 
+            1 AS DEPTH  -- 계층의 깊이를 나타내는 가상 컬럼 추가
+        FROM 
+            MY_TABLE
+        WHERE 
+            PARENT_ID IS NULL -- 최상위 조건
+    
+        UNION ALL
+    
+        -- 2. 반복 연산: 자식 노드 찾기 (원본 테이블과 CTE를 조인)
+        SELECT 
+            T.ID, 
+            T.PARENT_ID, 
+            T.NAME, 
+            H.DEPTH + 1 -- 밑으로 내려갈수록 깊이 + 1
+        FROM 
+            MY_TABLE AS T
+        INNER JOIN 
+            HierarchyCTE AS H
+        ON
+            T.PARENT_ID = H.ID  -- 자식의 부모 ID(T.PARENT_ID) = 방금 찾은 노드의 ID(H.ID)
+   
+        -- 3. 종료 조건
+        WHERE 
+            H.DEPTH < 10 -- 안전장치
+    )
+    
+    SELECT
+           *
+    FROM
+       HierarchyCTE
+    ORDER BY
+       DEPTH; -- 계층 순서대로 정렬
+   ```
 2. 흐름 예시
    1. 원본 테이블
       | **ID** | **PARENT_ID** |
