@@ -1,0 +1,75 @@
+[https://leetcode.com/problems/game-play-analysis-iv/description/](https://leetcode.com/problems/game-play-analysis-iv/description/)
+```sql
+WITH
+  -- 첫 번째 로그인한 날짜 모은 유저 테이블. "연속되었는가?"를 판단할 때 사용한다.
+    FIRST_LOGIN AS (
+        SELECT
+            player_id,
+            MIN(event_date) AS FIRST_DAY -- 여러 개가 있다면, 최초 로그인 날짜만 가져옴
+        FROM
+            Activity
+        GROUP BY
+            player_id
+    ),
+  -- 비율 계산에 사용될 전체 유저 개수
+    ALL_USER AS (
+        SELECT
+            COUNT(DISTINCT player_id) AS TOTAL_USER
+        FROM
+            Activity
+    )
+
+SELECT
+    ROUND((
+    COUNT(A.player_id) -- 하루 지나고 로그인한 날짜가 있는 유저 목록만 집계한다.
+     / 
+    (SELECT TOTAL_USER FROM ALL_USER) -- 스칼라 쿼리
+     ), 2) AS fraction
+   
+FROM
+    Activity AS A
+JOIN
+    FIRST_LOGIN AS F
+ON
+    A.player_id = F.player_id
+
+-- 조건: 하루 지나고 로그인한 날짜가 있는가?
+WHERE
+    DATE_ADD(F.FIRST_DAY, INTERVAL 1 DAY) = A.event_date -- 1일 이후 날짜가 있는가?
+```
+### 🔗 풀이
+1. 🤔 전체 플레이어 수
+    1. player_id에 DISTINCT걸어야 한다.
+    2. all_user 테이블은 "테이블"이다.
+        - 사용법: select total_cnt from all_user -> 숫자
+
+2. 🤔 논리적 사고 과정
+    1. "최초 로그인" 날짜만 따로 뽑는 테이블을 생성한다.
+    2. 본 쿼리에서 JOIN한 뒤, DATE_ADD() 함수로 최초 로그인 날짜에서 하루 지난 날짜가 있는 행만 추린다.
+
+### 🔗 배운점
+1. 스칼라 쿼리에는 `()` 를 무조건 걸어야 한다.
+    - ❌ `select total_cnt from all_user`
+    - ✅ `(select total_cnt from all_user)`
+2. `DATE_ADD()` 사용법
+    - `DATE_ADD(기준_날짜, INTERVAL 더할_값 단위)`
+        - 기준_날짜: 계산의 시작이 되는 날짜 (컬럼명 혹은 '2024-03-02' 같은 문자열)
+        - INTERVAL: "간격"을 의미하는 키워드 (반드시 써줘야 함)
+        - 더할_값: 숫자 (양수면 미래로, 음수면 과거로 이동)
+        - 단위: `DAY`, `MONTH`, `YEAR`, `HOUR`, `MINUTE`, `SECOND` 등
+3. `DATE_ADD()` 예시 모음
+     ```sql
+      -- 1) 오늘 날짜에서 7일 뒤
+      SELECT DATE_ADD(CURDATE(), INTERVAL 7 DAY) AS d7;
+     ```
+     ```sql
+      -- 2) 특정 날짜에서 1개월 전 (음수 가능)
+      SELECT DATE_ADD('2024-03-02', INTERVAL -1 MONTH) AS prev_month;
+     ```
+     ```sql
+      -- 3) 컬럼 기준으로 시간 더하기 (예: created_at에서 2시간 뒤)
+      SELECT
+        created_at,
+        DATE_ADD(created_at, INTERVAL 2 HOUR) AS created_plus_2h
+      FROM orders;
+     ```
